@@ -1,9 +1,11 @@
+#[derive(Debug)]
 pub struct Song {
     pub tempo: u16,
     pub time: TimeSignature,
     pub bars: Vec<Bar>
 }
 
+#[derive(Debug)]
 pub struct TimeSignature(u8, u8);
 
 impl TimeSignature {
@@ -12,11 +14,13 @@ impl TimeSignature {
     }
 }
 
+#[derive(Debug)]
 pub struct Bar {
-    chords: Vec<Chord>
+    pub chords: Vec<Chord>
 }
 
+#[derive(Debug)]
 pub struct Chord {
-    duration: u8,
-    root: char,
+    pub duration: u8,
+    pub root: char,
 }
