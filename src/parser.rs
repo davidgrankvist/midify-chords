@@ -13,12 +13,12 @@ pub fn parse_song(raw_song: &str, song_config: SongConfig) -> Song {
             let chords: Vec<Chord> = bar.split_whitespace()
                 .map(| chord |{
                     let chord = re.captures_iter(chord).next().expect("Chord did not match pattern");
-                    let letter = chord.get(1).expect("Missing chord root letter")
-                        .as_str().chars().next().unwrap().into();
+                    let letter = chord.get(1)
+                        .expect("Missing chord root letter")
+                        .as_str().into();
                     let semitone: Option<Semitone> = match chord.get(2) {
                         Some(m) => {
-                            let c = m.as_str().chars().next().unwrap();
-                            Some(c.into())
+                            Some(m.as_str().into())
                         },
                         _ => None
                     };
@@ -51,27 +51,27 @@ pub fn parse_song(raw_song: &str, song_config: SongConfig) -> Song {
     song
 }
 
-impl From<char> for Letter {
-    fn from(c: char) -> Self {
-        match c {
-            'A' => Letter::A,
-            'B' => Letter::B,
-            'C' => Letter::C,
-            'D' => Letter::D,
-            'E' => Letter::E,
-            'F' => Letter::F,
-            'G' => Letter::G,
-            _ => panic!("Letter {} is not a valid note (A-G)", c)
+impl From<&str> for Letter {
+    fn from(s: &str) -> Self {
+        match s {
+            "A" => Letter::A,
+            "B" => Letter::B,
+            "C" => Letter::C,
+            "D" => Letter::D,
+            "E" => Letter::E,
+            "F" => Letter::F,
+            "G" => Letter::G,
+            _ => panic!("Letter {} is not a valid note (A-G)", s)
         }
     }
 }
 
-impl From<char> for Semitone {
-    fn from(c: char) -> Self {
-        match c {
-            '#' => Semitone::Sharp,
-            'b' => Semitone::Flat,
-            _ => panic!("Letter {} is not a valid semitone (# or b)", c)
+impl From<&str> for Semitone {
+    fn from(s: &str) -> Self {
+        match s {
+            "#" => Semitone::Sharp,
+            "b" => Semitone::Flat,
+            _ => panic!("Letter {} is not a valid semitone (# or b)", s)
         }
     }
 }
