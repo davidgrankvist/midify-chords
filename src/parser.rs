@@ -35,6 +35,10 @@ pub fn parse_song(raw_song: &str, song_config: SongConfig) -> Song {
                         quality,
                     }
                 }).collect();
+            if chords.len() > song_config.time.numerator.into() {
+                panic!("This bar bar does not match the {}/{} time signature:\n{}",
+                       &song_config.time.numerator, &song_config.time.denominator, &bar);
+            }
             Bar {
                 chords,
             }
