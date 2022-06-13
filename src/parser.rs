@@ -1,15 +1,25 @@
 use crate::models::*;
+use regex::*;
+
+const CHORD_PATTERN: &str = r"^([A-G])(#|b)?$";
 
 pub fn parse_song(raw_song: &str, song_config: SongConfig) -> Song {
     println!("Parsing this song:\n{}", &raw_song);
+
+    let re = Regex::new(CHORD_PATTERN).unwrap();
+
     let bars: Vec<Bar> = raw_song.split("|")
         .map(| bar | {
             let chords: Vec<Chord> = bar.split_whitespace()
                 .map(| chord |{
-                    let chars: Vec<char> = chord.chars().collect();
-                    let letter: Letter = chars.get(0).expect("Missing chord root letter").into();
-                    let semitone: Option<Semitone> = match chars.get(1) {
-                        Some(c) => Some(c.into()),
+                    let chord = re.captures_iter(chord).next().expect("Chord did not match pattern");
+                    let letter = chord.get(1).expect("Missing chord root letter")
+                        .as_str().chars().next().unwrap().into();
+                    let semitone: Option<Semitone> = match chord.get(2) {
+                        Some(m) => {
+                            let c = m.as_str().chars().next().unwrap();
+                            Some(c.into())
+                        },
                         _ => None
                     };
                     let root = Note(letter, semitone);
@@ -30,8 +40,8 @@ pub fn parse_song(raw_song: &str, song_config: SongConfig) -> Song {
     song
 }
 
-impl From<&char> for Letter {
-    fn from(c: &char) -> Self {
+impl From<char> for Letter {
+    fn from(c: char) -> Self {
         match c {
             'A' => Letter::A,
             'B' => Letter::B,
@@ -45,8 +55,8 @@ impl From<&char> for Letter {
     }
 }
 
-impl From<&char> for Semitone {
-    fn from(c: &char) -> Self {
+impl From<char> for Semitone {
+    fn from(c: char) -> Self {
         match c {
             '#' => Semitone::Sharp,
             'b' => Semitone::Flat,
