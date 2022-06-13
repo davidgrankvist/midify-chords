@@ -1,17 +1,19 @@
 #[derive(Debug)]
 pub struct Song {
-    pub tempo: u16,
-    pub time: TimeSignature,
+    pub config: SongConfig,
     pub bars: Vec<Bar>
 }
 
 #[derive(Debug)]
-pub struct TimeSignature(u8, u8);
+pub struct SongConfig {
+    pub tempo: u16,
+    pub time: TimeSignature,
+}
 
-impl TimeSignature {
-    pub fn new(numerator: u8, denominator: u8) -> TimeSignature {
-        TimeSignature(numerator, denominator)
-    }
+#[derive(Debug)]
+pub struct TimeSignature {
+    pub numerator: u8,
+    pub denominator: u8,
 }
 
 #[derive(Debug)]
@@ -22,5 +24,18 @@ pub struct Bar {
 #[derive(Debug)]
 pub struct Chord {
     pub duration: u8,
-    pub root: char,
+    pub root: Note,
+}
+
+#[derive(Debug)]
+pub struct Note(pub Letter, pub Option<Semitone>);
+
+#[derive(Debug)]
+pub enum Letter {
+    A, B, C, D, E, F, G
+}
+
+#[derive(Debug)]
+pub enum Semitone {
+    Sharp, Flat
 }
