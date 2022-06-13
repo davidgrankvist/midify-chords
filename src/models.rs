@@ -25,6 +25,7 @@ pub struct Bar {
 pub struct Chord {
     pub duration: u8,
     pub root: Note,
+    pub quality: Quality,
 }
 
 #[derive(Debug)]
@@ -38,4 +39,9 @@ pub enum Letter {
 #[derive(Debug)]
 pub enum Semitone {
     Sharp, Flat
+}
+
+#[derive(Debug)]
+pub enum Quality {
+    Major, Minor, Diminished, Augmented
 }

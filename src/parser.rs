@@ -1,7 +1,7 @@
 use crate::models::*;
 use regex::*;
 
-const CHORD_PATTERN: &str = r"^([A-G])(#|b)?$";
+const CHORD_PATTERN: &str = r"^([A-G])(#|b)?(m|dim|aug)?$";
 
 pub fn parse_song(raw_song: &str, song_config: SongConfig) -> Song {
     println!("Parsing this song:\n{}", &raw_song);
@@ -22,10 +22,17 @@ pub fn parse_song(raw_song: &str, song_config: SongConfig) -> Song {
                         },
                         _ => None
                     };
+                    let quality: Quality = match chord.get(3) {
+                        Some(q) => {
+                            q.as_str().into()
+                        },
+                        _ => Quality::Major
+                    };
                     let root = Note(letter, semitone);
                     Chord {
                         duration: 1,
                         root,
+                        quality,
                     }
                 }).collect();
             Bar {
@@ -61,6 +68,17 @@ impl From<char> for Semitone {
             '#' => Semitone::Sharp,
             'b' => Semitone::Flat,
             _ => panic!("Letter {} is not a valid semitone (# or b)", c)
+        }
+    }
+}
+
+impl From<&str> for Quality {
+    fn from(s: &str) -> Self {
+        match s {
+            "m" => Quality::Minor,
+            "dim" => Quality::Diminished,
+            "aug" => Quality::Augmented,
+            _ => panic!("String {} is not a valid chord quality (m, dim or aug)", s)
         }
     }
 }
