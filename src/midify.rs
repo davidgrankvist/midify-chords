@@ -3,5 +3,34 @@ use crate::models::*;
 
 pub fn output_midi(song: &Song, out_file: &str) {
     println!("Writing MIDI to {}", out_file);
-    fs::write(out_file, "wait what this is not midi").expect(format!("Failed to write to {}", out_file).as_str());
+
+    let song = get_dummy_track();
+    fs::write(out_file, &song).expect(format!("Failed to write to {}", out_file).as_str());
+}
+
+fn get_dummy_track() -> Vec<u8> {
+    vec![
+        // MThd
+        0x4d, 0x54, 0x68, 0x64,
+        0x00, 0x00, 0x00, 0x06,
+        0x00, 0x00,
+        0x00, 0x01,
+        0x01, 0xe0,
+
+        // MTrk
+        0x4d, 0x54, 0x72, 0x6b,
+        0x00, 0x00, 0x00, 0x18,
+
+        // note on C, E, G
+        0x00, 0x90, 0x3c, 0x50,
+        0x00,       0x40, 0x50,
+        0x00,       0x43, 0x50,
+
+        // note off C, E, G
+        0x83, 0x47, 0x3c, 0x00,
+        0x00,       0x40, 0x00,
+        0x00,       0x43, 0x00,
+
+        0x01, 0xff, 0x2f, 0x00,
+    ]
 }
