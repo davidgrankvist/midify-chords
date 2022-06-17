@@ -135,3 +135,33 @@ impl Song {
         ]
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_song_midify() {
+        let song = Song {
+            config: SongConfig {
+                tempo: 120,
+                time: TimeSignature {
+                    numerator: NoteDuration::Quarter(4),
+                    denominator: NoteDuration::Quarter(4),
+                }
+            },
+            bars: vec![
+                Bar {
+                    chords: vec![
+                        Chord {
+                            duration: NoteDuration::Quarter(1),
+                            root: Note(Letter::C, None),
+                            quality: Quality::Major,
+                        }
+                    ]
+                }
+            ]
+        };
+        assert_eq!(song.midify(), get_dummy_track());
+    }
+}
