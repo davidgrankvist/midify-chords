@@ -1,7 +1,7 @@
 use crate::models::*;
 use regex::*;
 
-const CHORD_PATTERN: &str = r"^([A-G])(#|b)?(m|dim|aug)?$";
+const CHORD_PATTERN: &str = r"^([A-G])(#|b)?(m|dim|aug|sus)?$";
 
 pub fn parse_song(raw_song: &str, song_config: SongConfig) -> Song {
     println!("Parsing this song:\n{}", &raw_song);
@@ -83,6 +83,7 @@ impl From<&str> for Quality {
             "m" => Quality::Minor,
             "dim" => Quality::Diminished,
             "aug" => Quality::Augmented,
+            "sus" => Quality::Suspended,
             _ => panic!("String {} is not a valid chord quality (m, dim or aug)", s)
         }
     }

@@ -43,7 +43,7 @@ pub enum Semitone {
 
 #[derive(Debug)]
 pub enum Quality {
-    Major, Minor, Diminished, Augmented
+    Major, Minor, Diminished, Augmented, Suspended
 }
 
 #[derive(Debug)]
