@@ -30,14 +30,15 @@ pub fn parse_song(raw_song: &str, song_config: SongConfig) -> Song {
                     };
                     let root = Note(letter, semitone);
                     Chord {
-                        duration: 1,
+                        duration: NoteDuration::Quarter(1),
                         root,
                         quality,
                     }
                 }).collect();
-            if chords.len() > song_config.time.numerator.into() {
-                panic!("This bar bar does not match the {}/{} time signature:\n{}",
-                       &song_config.time.numerator, &song_config.time.denominator, &bar);
+            let NoteDuration::Quarter(num) = song_config.time.numerator;
+            if chords.len() > num.into() {
+                panic!("Mismatching bar and time signature:\nTIME = {:?}\nBAR = {}\n",
+                       &song_config.time, &bar);
             }
             Bar {
                 chords,

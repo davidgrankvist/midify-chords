@@ -12,8 +12,8 @@ pub struct SongConfig {
 
 #[derive(Debug)]
 pub struct TimeSignature {
-    pub numerator: u8,
-    pub denominator: u8,
+    pub numerator: NoteDuration,
+    pub denominator: NoteDuration,
 }
 
 #[derive(Debug)]
@@ -23,7 +23,7 @@ pub struct Bar {
 
 #[derive(Debug)]
 pub struct Chord {
-    pub duration: u8,
+    pub duration: NoteDuration,
     pub root: Note,
     pub quality: Quality,
 }
@@ -44,4 +44,9 @@ pub enum Semitone {
 #[derive(Debug)]
 pub enum Quality {
     Major, Minor, Diminished, Augmented
+}
+
+#[derive(Debug)]
+pub enum NoteDuration {
+    Quarter(u8)
 }

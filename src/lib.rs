@@ -1,5 +1,5 @@
 use std::io::{self, Read};
-use models::{SongConfig, TimeSignature};
+use models::*;
 
 use crate::parser::parse_song;
 use crate::midify::output_midi;
@@ -27,7 +27,7 @@ impl Config {
         Config {
             song_config: SongConfig { 
                 tempo: 120,
-                time: TimeSignature { numerator: 4, denominator: 4 },
+                time: TimeSignature { numerator: NoteDuration::Quarter(4), denominator: NoteDuration::Quarter(4) },
             },
             out_file: String::from("test.mid")
         }
