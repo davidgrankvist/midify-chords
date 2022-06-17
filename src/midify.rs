@@ -2,6 +2,7 @@ use std::fs;
 use crate::models::*;
 
 const MIDDLE_C: u8 = 0x3c;
+const QUARTER_DELTA: u8 = 0x19;
 
 pub fn output_midi(song: &Song, out_file: &str) {
     println!("Writing MIDI to {}", out_file);
@@ -21,13 +22,21 @@ fn get_dummy_track() -> Vec<u8> {
 
         // MTrk
         0x4d, 0x54, 0x72, 0x6b,
-        0x00, 0x00, 0x00, 0x18,
+        0x00, 0x00, 0x00, 0x2e,
 
         // note on C, E, G
-        0x00, 0x90, 0x3c, 0x50,
+        0x80, 0x00, 0x90, 0x3c, 0x50,
         0x00,       0x40, 0x50,
         0x00,       0x43, 0x50,
+        // note off C, E, G
+        0x83, 0x47, 0x3c, 0x00,
+        0x00,       0x40, 0x00,
+        0x00,       0x43, 0x00,
 
+        // note on C, E, G
+        0x80, 0x19, 0x90, 0x3c, 0x50,
+        0x00,       0x40, 0x50,
+        0x00,       0x43, 0x50,
         // note off C, E, G
         0x83, 0x47, 0x3c, 0x00,
         0x00,       0x40, 0x00,
@@ -58,6 +67,16 @@ trait Midi {
     fn midify(&self) -> Vec<u8>;
 }
 
+fn to_midi_delta(index: usize) -> Vec<u8> {
+    let index: u16 = index.try_into().unwrap();
+    let delta: u16 = QUARTER_DELTA.try_into().unwrap();
+    let delta = index * delta;
+
+    let upper = 0x80 | ( delta >> 8 );
+    let lower = 0x00ff & delta;
+    vec![upper.try_into().unwrap(), lower.try_into().unwrap()]
+}
+
 impl Chord {
     fn to_notes(&self) -> Vec<u8> {
         let root = to_midi(&self.root);
@@ -66,23 +85,24 @@ impl Chord {
         let fifth = root + 7;
         vec![root, third, fifth]
     }
-}
 
-impl Midi for Chord {
-    fn midify(&self) -> Vec<u8> {
+    fn midify(&self, index: usize) -> Vec<u8> {
         let notes = self.to_notes();
-        // assume quarter notes for now
+        let delta = to_midi_delta(index);
         vec![
-            // note on
-            0x00, 0x90, notes[0], 0x50,
-            0x00,       notes[1], 0x50,
-            0x00,       notes[2], 0x50,
+            delta,
+            vec![
+                // note on
+                0x90,       notes[0], 0x50,
+                0x00,       notes[1], 0x50,
+                0x00,       notes[2], 0x50,
 
-            // note off
-            0x83, 0x47, notes[0], 0x00,
-            0x00,       notes[1], 0x00,
-            0x00,       notes[2], 0x00,
-        ]
+                // note off
+                0x83, 0x47, notes[0], 0x00,
+                0x00,       notes[1], 0x00,
+                0x00,       notes[2], 0x00,
+            ]
+        ].concat()
     }
 }
 
@@ -91,9 +111,9 @@ impl Midi for Song {
         let chords: Vec<u8> = self.bars.iter()
             .map(| bar | {
                 &bar.chords
-            }).flatten()
-            .map(| chord | {
-                chord.midify()
+            }).flatten().enumerate()
+            .map(| (i, chord) | {
+                chord.midify(i)
             }).flatten().collect();
         vec![
             Song::get_midi_header(),
@@ -119,7 +139,7 @@ impl Song {
         vec![
             // MTrk
             0x4d, 0x54, 0x72, 0x6b,
-            0x00, 0x00, 0x00, 0x18,
+            0x00, 0x00, 0x00, 0x2e,
         ]
     }
     fn get_midi_track_end() -> Vec<u8> {
@@ -150,11 +170,23 @@ mod test {
                             duration: NoteDuration::Quarter(1),
                             root: Note(Letter::C, None),
                             quality: Quality::Major,
+                        },
+                        Chord {
+                            duration: NoteDuration::Quarter(1),
+                            root: Note(Letter::C, None),
+                            quality: Quality::Major,
                         }
                     ]
                 }
             ]
         };
         assert_eq!(song.midify(), get_dummy_track());
+    }
+
+    #[test]
+    fn test_to_midi_delta() {
+        assert_eq!(to_midi_delta(0), vec![0x80, 0x00]);
+        assert_eq!(to_midi_delta(1), vec![0x80, QUARTER_DELTA]);
+        assert_eq!(to_midi_delta(100), vec![0x89, 0xc4]);
     }
 }
