@@ -86,26 +86,19 @@ impl Midi for Chord {
     }
 }
 
-impl Midi for Bar {
-    fn midify(&self) -> Vec<u8> {
-        let chords: Vec<Vec<u8>> = self.chords.iter()
-            .map(| chord | {
-                chord.midify()
-            }).collect();
-        chords.concat()
-    }
-}
-
 impl Midi for Song {
     fn midify(&self) -> Vec<u8> {
-        let bars: Vec<u8> = self.bars.iter()
+        let chords: Vec<u8> = self.bars.iter()
             .map(| bar | {
-                bar.midify()
-            }).collect::<Vec<Vec<u8>>>().concat();
+                &bar.chords
+            }).flatten()
+            .map(| chord | {
+                chord.midify()
+            }).flatten().collect();
         vec![
             Song::get_midi_header(),
             self.get_midi_track_preamble(),
-            bars,
+            chords,
             Song::get_midi_track_end()
         ].concat()
     }
