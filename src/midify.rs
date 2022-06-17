@@ -1,6 +1,8 @@
 use std::fs;
 use crate::models::*;
 
+const MIDDLE_C: u8 = 0x3c;
+
 pub fn output_midi(song: &Song, out_file: &str) {
     println!("Writing MIDI to {}", out_file);
 
@@ -33,4 +35,21 @@ fn get_dummy_track() -> Vec<u8> {
 
         0x01, 0xff, 0x2f, 0x00,
     ]
+}
+
+fn to_midi(n: &Note) -> u8 {
+    let letter = match &n.0 {
+        Letter::C => MIDDLE_C,
+        Letter::D => MIDDLE_C + 2,
+        Letter::E => MIDDLE_C + 4,
+        Letter::F => MIDDLE_C + 6,
+        Letter::G => MIDDLE_C + 8,
+        Letter::A => MIDDLE_C + 10,
+        Letter::B => MIDDLE_C + 12,
+    };
+    match &n.1 {
+        Some(Semitone::Sharp) => letter + 1,
+        Some(Semitone::Flat) => letter - 1,
+        None => letter,
+    }
 }
