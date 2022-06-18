@@ -5,6 +5,7 @@ use crate::midify::util::*;
 mod util;
 
 const MIDDLE_C: u8 = 0x3c;
+const QUARTER_DELTA: u8 = 0x19;
 
 pub fn output_midi(song: &Song, out_file: &str) {
     let test_mode = env::var("TEST_MODE").is_ok();
@@ -65,21 +66,23 @@ impl Song {
 impl Chord {
     fn midify(&self, index: usize) -> Vec<u8> {
         let notes = self.to_notes();
-        let delta = to_midi_delta(index);
+        let delta = if index > 0 {
+            QUARTER_DELTA
+        } else {
+            0x00
+        };
         vec![
+            // note on
             delta,
-            vec![
-                // note on
-                0x90,       notes[0], 0x50,
-                0x00,       notes[1], 0x50,
-                0x00,       notes[2], 0x50,
+            0x90, notes[0], 0x50,
+            0x00, notes[1], 0x50,
+            0x00, notes[2], 0x50,
 
-                // note off
-                0x83, 0x47, notes[0], 0x00,
-                0x00,       notes[1], 0x00,
-                0x00,       notes[2], 0x00,
-            ]
-        ].concat()
+            // note off
+            0x83, 0x47, notes[0], 0x00,
+            0x00,       notes[1], 0x00,
+            0x00,       notes[2], 0x00,
+        ]
     }
     fn to_notes(&self) -> Vec<u8> {
         let root = *(&self.root.midify());
@@ -161,10 +164,10 @@ fn get_test_midi_file() -> Vec<u8> {
 
         // MTrk
         0x4d, 0x54, 0x72, 0x6b,
-        0x00, 0x00, 0x00, 0x2e,
+        0x00, 0x00, 0x00, 0x2c,
 
         // note on C, E, G
-        0x80, 0x00, 0x90, 0x3c, 0x50,
+        0x00, 0x90, 0x3c, 0x50,
         0x00,       0x40, 0x50,
         0x00,       0x43, 0x50,
         // note off C, E, G
@@ -173,7 +176,7 @@ fn get_test_midi_file() -> Vec<u8> {
         0x00,       0x43, 0x00,
 
         // note on C, E, G
-        0x80, 0x19, 0x90, 0x3c, 0x50,
+        0x19, 0x90, 0x3c, 0x50,
         0x00,       0x40, 0x50,
         0x00,       0x43, 0x50,
         // note off C, E, G
@@ -182,5 +185,5 @@ fn get_test_midi_file() -> Vec<u8> {
         0x00,       0x43, 0x00,
 
         0x01, 0xff, 0x2f, 0x00,
-        ]
+    ]
 }
