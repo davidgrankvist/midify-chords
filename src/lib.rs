@@ -13,8 +13,11 @@ pub fn run(config: Config) {
     let mut song = String::new();
     io::stdin().read_to_string(&mut song).expect("Failed to read song from STDIN");
 
+    println!("Parsing song");
     let song = parse_song(&song, config.song_config);
+    println!("Converting to MIDI");
     output_midi(&song, &config.out_file);
+    println!("Done!");
 }
 
 pub struct Config {

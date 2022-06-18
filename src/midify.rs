@@ -7,8 +7,6 @@ mod util;
 const MIDDLE_C: u8 = 0x3c;
 
 pub fn output_midi(song: &Song, out_file: &str) {
-    println!("Writing MIDI to {}", out_file);
-
     let test_mode = env::var("TEST_MODE").is_ok();
     let song = if test_mode {
        get_test_midi_file()
@@ -16,6 +14,7 @@ pub fn output_midi(song: &Song, out_file: &str) {
         song.midify()
     };
 
+    println!("Writing MIDI to {}", out_file);
     fs::write(out_file, &song).expect(format!("Failed to write to {}", out_file).as_str());
 }
 

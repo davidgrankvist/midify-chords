@@ -4,8 +4,6 @@ use regex::*;
 const CHORD_PATTERN: &str = r"^([A-G])(#|b)?(m|dim|aug|sus)?$";
 
 pub fn parse_song(raw_song: &str, song_config: SongConfig) -> Song {
-    println!("Parsing this song:\n{}", &raw_song);
-
     let re = Regex::new(CHORD_PATTERN).unwrap();
 
     let bars: Vec<Bar> = raw_song.split("|")
@@ -48,7 +46,6 @@ pub fn parse_song(raw_song: &str, song_config: SongConfig) -> Song {
         config: song_config,
         bars,
     };
-    dbg!(&song);
     song
 }
 
