@@ -105,10 +105,10 @@ impl Note {
             Letter::C => MIDDLE_C,
             Letter::D => MIDDLE_C + 2,
             Letter::E => MIDDLE_C + 4,
-            Letter::F => MIDDLE_C + 6,
-            Letter::G => MIDDLE_C + 8,
-            Letter::A => MIDDLE_C + 10,
-            Letter::B => MIDDLE_C + 12,
+            Letter::F => MIDDLE_C + 5,
+            Letter::G => MIDDLE_C + 7,
+            Letter::A => MIDDLE_C + 9,
+            Letter::B => MIDDLE_C + 11,
         };
         match &self.1 {
             Some(Semitone::Sharp) => letter + 1,
