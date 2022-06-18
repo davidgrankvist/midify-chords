@@ -1,4 +1,4 @@
-use std::fs;
+use std::{env, fs};
 use crate::models::*;
 use crate::midify::util::*;
 
@@ -9,43 +9,14 @@ const MIDDLE_C: u8 = 0x3c;
 pub fn output_midi(song: &Song, out_file: &str) {
     println!("Writing MIDI to {}", out_file);
 
-    let song = song.midify();
+    let test_mode = env::var("TEST_MODE").is_ok();
+    let song = if test_mode {
+       get_test_midi_file()
+    } else {
+        song.midify()
+    };
+
     fs::write(out_file, &song).expect(format!("Failed to write to {}", out_file).as_str());
-}
-
-fn get_dummy_track() -> Vec<u8> {
-    vec![
-        // MThd
-        0x4d, 0x54, 0x68, 0x64,
-        0x00, 0x00, 0x00, 0x06,
-        0x00, 0x00,
-        0x00, 0x01,
-        0x01, 0xe0,
-
-        // MTrk
-        0x4d, 0x54, 0x72, 0x6b,
-        0x00, 0x00, 0x00, 0x2e,
-
-        // note on C, E, G
-        0x80, 0x00, 0x90, 0x3c, 0x50,
-        0x00,       0x40, 0x50,
-        0x00,       0x43, 0x50,
-        // note off C, E, G
-        0x83, 0x47, 0x3c, 0x00,
-        0x00,       0x40, 0x00,
-        0x00,       0x43, 0x00,
-
-        // note on C, E, G
-        0x80, 0x19, 0x90, 0x3c, 0x50,
-        0x00,       0x40, 0x50,
-        0x00,       0x43, 0x50,
-        // note off C, E, G
-        0x83, 0x47, 0x3c, 0x00,
-        0x00,       0x40, 0x00,
-        0x00,       0x43, 0x00,
-
-        0x01, 0xff, 0x2f, 0x00,
-    ]
 }
 
 impl Note {
@@ -102,9 +73,9 @@ impl Song {
             .map(| bar | {
                 &bar.chords
             }).flatten().enumerate()
-            .map(| (i, chord) | {
-                chord.midify(i)
-            }).flatten().collect();
+        .map(| (i, chord) | {
+            chord.midify(i)
+        }).flatten().collect();
         vec![
             Song::get_midi_header(),
             self.get_midi_track_preamble(chords.len()),
@@ -171,6 +142,41 @@ mod test {
                 }
             ]
         };
-        assert_eq!(song.midify(), get_dummy_track());
+        assert_eq!(song.midify(), get_test_midi_file());
     }
+}
+
+fn get_test_midi_file() -> Vec<u8> {
+    vec![
+        // MThd
+        0x4d, 0x54, 0x68, 0x64,
+        0x00, 0x00, 0x00, 0x06,
+        0x00, 0x00,
+        0x00, 0x01,
+        0x01, 0xe0,
+
+        // MTrk
+        0x4d, 0x54, 0x72, 0x6b,
+        0x00, 0x00, 0x00, 0x2e,
+
+        // note on C, E, G
+        0x80, 0x00, 0x90, 0x3c, 0x50,
+        0x00,       0x40, 0x50,
+        0x00,       0x43, 0x50,
+        // note off C, E, G
+        0x83, 0x47, 0x3c, 0x00,
+        0x00,       0x40, 0x00,
+        0x00,       0x43, 0x00,
+
+        // note on C, E, G
+        0x80, 0x19, 0x90, 0x3c, 0x50,
+        0x00,       0x40, 0x50,
+        0x00,       0x43, 0x50,
+        // note off C, E, G
+        0x83, 0x47, 0x3c, 0x00,
+        0x00,       0x40, 0x00,
+        0x00,       0x43, 0x00,
+
+        0x01, 0xff, 0x2f, 0x00,
+        ]
 }
