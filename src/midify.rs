@@ -63,14 +63,6 @@ impl Song {
 }
 
 impl Chord {
-    fn to_notes(&self) -> Vec<u8> {
-        let root = *(&self.root.midify());
-        // assume major chord for now
-        let third = root + 4;
-        let fifth = root + 7;
-        vec![root, third, fifth]
-    }
-
     fn midify(&self, index: usize) -> Vec<u8> {
         let notes = self.to_notes();
         let delta = to_midi_delta(index);
@@ -89,6 +81,19 @@ impl Chord {
             ]
         ].concat()
     }
+    fn to_notes(&self) -> Vec<u8> {
+        let root = *(&self.root.midify());
+        let (third, fifth) = match &self.quality {
+            Quality::Major => (4, 7),
+            Quality::Minor => (3, 7),
+            Quality::Diminished => (3, 6),
+            Quality::Augmented => (4, 8),
+            Quality::Suspended => (5, 7),
+
+        };
+        vec![root, root + third, root + fifth]
+    }
+
 }
 
 impl Note {
