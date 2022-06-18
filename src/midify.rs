@@ -7,7 +7,7 @@ const QUARTER_DELTA: u8 = 0x19;
 pub fn output_midi(song: &Song, out_file: &str) {
     println!("Writing MIDI to {}", out_file);
 
-    let song = get_dummy_track();
+    let song = song.midify();
     fs::write(out_file, &song).expect(format!("Failed to write to {}", out_file).as_str());
 }
 
