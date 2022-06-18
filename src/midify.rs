@@ -65,10 +65,6 @@ impl Note {
     }
 }
 
-trait Midi {
-    fn midify(&self) -> Vec<u8>;
-}
-
 fn to_midi_delta(index: usize) -> Vec<u8> {
     let index: u16 = index.try_into().unwrap();
     let delta: u16 = QUARTER_DELTA.try_into().unwrap();
@@ -123,7 +119,7 @@ impl Chord {
     }
 }
 
-impl Midi for Song {
+impl Song {
     fn midify(&self) -> Vec<u8> {
         let chords: Vec<u8> = self.bars.iter()
             .map(| bar | {
@@ -139,9 +135,6 @@ impl Midi for Song {
             Song::get_midi_track_end()
         ].concat()
     }
-}
-
-impl Song {
     fn get_midi_header() -> Vec<u8> {
         vec![
             // MThd
