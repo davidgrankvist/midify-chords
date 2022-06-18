@@ -46,20 +46,22 @@ fn get_dummy_track() -> Vec<u8> {
     ]
 }
 
-fn to_midi(n: &Note) -> u8 {
-    let letter = match &n.0 {
-        Letter::C => MIDDLE_C,
-        Letter::D => MIDDLE_C + 2,
-        Letter::E => MIDDLE_C + 4,
-        Letter::F => MIDDLE_C + 6,
-        Letter::G => MIDDLE_C + 8,
-        Letter::A => MIDDLE_C + 10,
-        Letter::B => MIDDLE_C + 12,
-    };
-    match &n.1 {
-        Some(Semitone::Sharp) => letter + 1,
-        Some(Semitone::Flat) => letter - 1,
-        None => letter,
+impl Note {
+    fn midify(&self) -> u8 {
+        let letter = match &self.0 {
+            Letter::C => MIDDLE_C,
+            Letter::D => MIDDLE_C + 2,
+            Letter::E => MIDDLE_C + 4,
+            Letter::F => MIDDLE_C + 6,
+            Letter::G => MIDDLE_C + 8,
+            Letter::A => MIDDLE_C + 10,
+            Letter::B => MIDDLE_C + 12,
+        };
+        match &self.1 {
+            Some(Semitone::Sharp) => letter + 1,
+            Some(Semitone::Flat) => letter - 1,
+            None => letter,
+        }
     }
 }
 
@@ -94,7 +96,7 @@ fn to_bytes(num: usize) -> Vec<u8> {
 
 impl Chord {
     fn to_notes(&self) -> Vec<u8> {
-        let root = to_midi(&self.root);
+        let root = *(&self.root.midify());
         // assume major chord for now
         let third = root + 4;
         let fifth = root + 7;
