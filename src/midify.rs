@@ -18,54 +18,6 @@ pub fn output_midi(song: &Song, out_file: &str) {
     fs::write(out_file, &song).expect(format!("Failed to write to {}", out_file).as_str());
 }
 
-impl Note {
-    fn midify(&self) -> u8 {
-        let letter = match &self.0 {
-            Letter::C => MIDDLE_C,
-            Letter::D => MIDDLE_C + 2,
-            Letter::E => MIDDLE_C + 4,
-            Letter::F => MIDDLE_C + 6,
-            Letter::G => MIDDLE_C + 8,
-            Letter::A => MIDDLE_C + 10,
-            Letter::B => MIDDLE_C + 12,
-        };
-        match &self.1 {
-            Some(Semitone::Sharp) => letter + 1,
-            Some(Semitone::Flat) => letter - 1,
-            None => letter,
-        }
-    }
-}
-
-impl Chord {
-    fn to_notes(&self) -> Vec<u8> {
-        let root = *(&self.root.midify());
-        // assume major chord for now
-        let third = root + 4;
-        let fifth = root + 7;
-        vec![root, third, fifth]
-    }
-
-    fn midify(&self, index: usize) -> Vec<u8> {
-        let notes = self.to_notes();
-        let delta = to_midi_delta(index);
-        vec![
-            delta,
-            vec![
-                // note on
-                0x90,       notes[0], 0x50,
-                0x00,       notes[1], 0x50,
-                0x00,       notes[2], 0x50,
-
-                // note off
-                0x83, 0x47, notes[0], 0x00,
-                0x00,       notes[1], 0x00,
-                0x00,       notes[2], 0x00,
-            ]
-        ].concat()
-    }
-}
-
 impl Song {
     fn midify(&self) -> Vec<u8> {
         let chords: Vec<u8> = self.bars.iter()
@@ -107,6 +59,54 @@ impl Song {
         vec![
             0x01, 0xff, 0x2f, 0x00,
         ]
+    }
+}
+
+impl Chord {
+    fn to_notes(&self) -> Vec<u8> {
+        let root = *(&self.root.midify());
+        // assume major chord for now
+        let third = root + 4;
+        let fifth = root + 7;
+        vec![root, third, fifth]
+    }
+
+    fn midify(&self, index: usize) -> Vec<u8> {
+        let notes = self.to_notes();
+        let delta = to_midi_delta(index);
+        vec![
+            delta,
+            vec![
+                // note on
+                0x90,       notes[0], 0x50,
+                0x00,       notes[1], 0x50,
+                0x00,       notes[2], 0x50,
+
+                // note off
+                0x83, 0x47, notes[0], 0x00,
+                0x00,       notes[1], 0x00,
+                0x00,       notes[2], 0x00,
+            ]
+        ].concat()
+    }
+}
+
+impl Note {
+    fn midify(&self) -> u8 {
+        let letter = match &self.0 {
+            Letter::C => MIDDLE_C,
+            Letter::D => MIDDLE_C + 2,
+            Letter::E => MIDDLE_C + 4,
+            Letter::F => MIDDLE_C + 6,
+            Letter::G => MIDDLE_C + 8,
+            Letter::A => MIDDLE_C + 10,
+            Letter::B => MIDDLE_C + 12,
+        };
+        match &self.1 {
+            Some(Semitone::Sharp) => letter + 1,
+            Some(Semitone::Flat) => letter - 1,
+            None => letter,
+        }
     }
 }
 
