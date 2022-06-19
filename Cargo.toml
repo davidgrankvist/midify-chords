@@ -7,3 +7,7 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 regex = "1.5"
 clap = { version = "3.2.5", features = ["derive"] }
+
+[[bin]]
+name = "midify-chords"
+path = "src/main.rs"
