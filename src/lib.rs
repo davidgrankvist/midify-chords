@@ -26,13 +26,13 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new() -> Config {
+    pub fn new(tempo: u16, out_file: String) -> Config {
         Config {
             song_config: SongConfig { 
-                tempo: 120,
+                tempo,
                 time: TimeSignature { numerator: NoteDuration::Quarter(4), denominator: NoteDuration::Quarter(4) },
             },
-            out_file: String::from("test.mid")
+            out_file,
         }
     }
 }
