@@ -26,7 +26,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(tempo: u16, out_file: String) -> Config {
+    pub fn new(tempo: u32, out_file: String) -> Config {
         Config {
             song_config: SongConfig { 
                 tempo,

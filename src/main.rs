@@ -14,7 +14,7 @@ fn main() {
 struct Args {
     /// Song tempo
     #[clap(short, long, value_parser, default_value_t = 120)]
-    bpm: u16,
+    bpm: u32,
     /// File to output MIDI to
     #[clap(short, long, value_parser)]
     out_file: String,

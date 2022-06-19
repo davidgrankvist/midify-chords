@@ -6,7 +6,7 @@ pub struct Song {
 
 #[derive(Debug)]
 pub struct SongConfig {
-    pub tempo: u16,
+    pub tempo: u32,
     pub time: TimeSignature,
 }
 

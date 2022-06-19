@@ -46,14 +46,28 @@ impl Song {
         ]
     }
     fn get_midi_track_preamble(&self, chord_chunks: usize) -> Vec<u8> {
-        let chunks = chord_chunks + Self::get_midi_track_end().len();
-        let chunks = to_bytes(chunks);
+        let tempo = self.get_midi_track_tempo();
+
+        let chunks = chord_chunks
+            + tempo.len()
+            + Self::get_midi_track_end().len();
+        let chunks = to_bytes(chunks.try_into().unwrap());
         vec![
             vec![
                 // MTrk
                 0x4d, 0x54, 0x72, 0x6b,
             ],
-            chunks
+            chunks,
+            tempo,
+        ].concat()
+    }
+    fn get_midi_track_tempo(&self) -> Vec<u8> {
+        let tempo = bpm_to_tempo_bytes(self.config.tempo);
+        vec![
+            vec![
+                0x00, 0xff, 0x51, 0x03,
+            ],
+            tempo
         ].concat()
     }
     fn get_midi_track_end() -> Vec<u8> {
@@ -164,7 +178,9 @@ fn get_test_midi_file() -> Vec<u8> {
 
         // MTrk
         0x4d, 0x54, 0x72, 0x6b,
-        0x00, 0x00, 0x00, 0x2c,
+        0x00, 0x00, 0x00, 0x33,
+        // 120bpm
+        0x00, 0xff, 0x51, 0x03,  0x07, 0xa1, 0x20,
 
         // note on C, E, G
         0x00, 0x90, 0x3c, 0x50,
